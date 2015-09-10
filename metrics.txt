@@ -1,0 +1,22 @@
+2015-09-10: Baseline metrics:
+Pagespeed Insights for index.html - 27 on mobile, 29 on desktop
+
+Made google analytics async, moved analytics code to bottom of body, and made print.css import say media="print" :
+26 on mobile, 29 on desktop (Ha!)
+
+Inlined latin 400/700 fonts:
+29 on mobile, 30 on desktop 
+
+Used compressed/minified js, css, and images from google:
+84 mobile, 92 desktop
+
+Minified html
+84 mobile, 91 desktop
+
+Optimized my local apache using configuration from https://github.com/h5bp/server-configs-apache :
+88 mobile, 95 desktop
+
+Inlined style.css:
+94 mobile, 96 desktop
+Good enough
+---------------------------------
