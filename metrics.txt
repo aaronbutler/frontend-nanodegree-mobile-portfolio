@@ -18,5 +18,42 @@ Optimized my local apache using configuration from https://github.com/h5bp/serve
 
 Inlined style.css:
 94 mobile, 96 desktop
+Did this for each html file, even though may make more sense to have external css file when it is used by multiple pages
 Good enough
+2015-09-10 13:17
+
+All 4 html files (index.html, project-2048.hml, project-mobile.html, project-webperf.html) came in over 90 on mobile and desktop.
 ---------------------------------
+60 fps pizza animations:
+The foundation for my solution is having 3 main layers of the page - movingPizzas, transparent-overlay, and mainContent. I optimized each independently. I also dropped the bootstrap-grid.css file because for some reason it was not giving me enough columns on the movingPizzas layer or on the mainContent layer. Instead, I just went to the bootstrapcdn file. If necessary, I could go back to bootstrap and make a file that only has what I use. 
+I used this article by the Pauls:
+http://www.html5rocks.com/en/tutorials/speed/high-performance-animations/
+on each layer.
+
+movingPizzas layer:
+-It was clearly unnecessary to have 200 pizzas. I first created a fixed position div with a black background. Then I created a single row of 3 pizzas in col-xs-2 cells directly in the html. I then cloned that row based on the size of the viewport, where each row takes up 256px of vertical space. I tested screens with 3 rows and with 6 rows. This immediately improved the initial page load time (not needed for the project, but what the heck). I also made a small version of the pizza image rather than retrieve a large image then scale it down. Putting the pizza images in bootstrap cells certainly made for more attractive code and it helped me better understand bootstrap (Daniel, our nanodegree guide, also helped a lot with this), but it is not clear that it helped with performance. However, it apparently didn't cause too much harm either. 
+-It was unnecessary to calculate the possible phase shifts for each moving pizza, as there were only 5 possible values. So I moved that out of the for loop in updatePosition.
+-I used transform=translateX to move the pizzas from their initial position in their cells, as that is more efficient than left. I used the Pauls article from above, and also used Paul Lewis' code almost verbatim from
+http://www.html5rocks.com/en/tutorials/speed/animations/
+to debounce the scroll events.
+This got me well over (under? the good side...) of 60fps on the movingPizzas layer.
+
+transparent-overlay layer:
+-It took me a while for the "only element on its layer" rule to sink in before I pulled this layer out. Then the opacity stopped causing slowdown. I used the idea from
+http://stackoverflow.com/questions/3157372/css-horizontal-centering-of-a-fixed-div
+to make it look reasonable.
+The scrolling was still on the good side of 60fps after doing this.
+
+mainContent layer:
+-First I put in the static content and made sure it didn't interfere with the speed of the background animation. A-OK.
+-Then I created all of the random pizzas, and made sure they looked reasonable on the page with all large images. 
+-I created a pizza image png that was equivalent to the largest size displayed, based on the sizeSlider selection of Large.
+-I gave the first 24 random pizza images a will-change: transform layer (each) as that was the greatest number of visible rows I saw on a screen and I wanted to make sure the resizing didn't force a repaint of the whole screen. I also gave the label (small, medium, large) a will-change:content layer for the same reason. I did not add and remove will-change with javascript despite the recommendations to do so in the class and on
+https://dev.opera.com/articles/css-will-change-property/
+because that didn't seem necessary from my testing and it did seem hackish and in violation of separation of code between display and functionality.
+-I used transform: scale to change the size of the pizzas, see the Pauls' article.
+-Note: I pulled out all of the timing api calls, because the results consistently misled me - my javascript was almost always fast, it was painting that caused slowdowns.
+
+And all animations are performing at better than 60 fps.
+FIN
+
