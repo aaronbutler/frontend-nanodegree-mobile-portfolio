@@ -1,0 +1,50 @@
+Source folder:
+index.html
+project-2048.html
+project-mobile.html
+project-webperf.html
+
+  img folder:
+  2048.png
+  cam_be_like.jpg
+  mobilewebdev.jpg
+  profilepic.jpg
+
+  css folder:
+  print.css
+
+  js folder:
+  perfmatters_pretty.js
+
+  views folder:
+  pizza.html
+
+    img folder:
+    pizzeria.jpg
+    pizza_small.png
+    pizza_large.png
+
+    js folder:
+    main.js
+
+
+Things to remove:
+css folder
+img folder
+js folder
+views folder
+index.html
+index_pretty.html
+project-2048.html
+project-mobile.html
+project-webperf.html
+
+Things to include on repo:
+package.json
+Gruntfile.js
+source folder
+pretty folder
+deploy folder
+
+Things to .gitignore
+node_modules folder
