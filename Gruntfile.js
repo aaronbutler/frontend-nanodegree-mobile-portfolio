@@ -3,8 +3,8 @@ Last things first: the files that should be served are in the deploy folder.
 
 Notes:
 The goal of this build script is to take the html, css, and js files as I write them,
-run javascript through hint/lint utilities,
-and make minified versions of everything.
+and run javascript through hint/lint utilities,
+and make minified versions of everything,.
 
 In particular, I will not automatically concatenate files or put external files inline in the html.
 I will also handle any image optimization manually or as part of a separate script.
@@ -169,5 +169,5 @@ module.exports = function(grunt) {
   //grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   //grunt.loadNpmTasks('grunt-mkdir');
-  grunt.registerTask('default', ['jshint:all','htmlmin:dist','uglify:pretty','uglify:dist','cssmin:dist','copy:main']);
+  grunt.registerTask('default', ['jshint:all','htmlmin:dist','uglify:dist','cssmin:dist','copy:main']);
 };

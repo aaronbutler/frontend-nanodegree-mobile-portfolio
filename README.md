@@ -11,7 +11,7 @@ When these goals conflicted with the Nanodegree project goals, I went with my go
 
 #### Build - requires node/npm and grunt
 1. From inside project directory, run npm install. This should install all required grunt plugins.
-1. From inside project directory, run grunt. This should read the files in source/ minimize them where appropriate, place the minimized files in a deploy/directory, and run a jshint task on the javascript files in the deploy directory.
+1. From inside project directory, run grunt. This should read the files in source/ , run a jshint task on the javascript files in the source directory, minimize them where appropriate, place the minimized files and all images in a deploy/ directory.
 
 #### Run - requires a local web server
 1. You have choices; I would recommend pointing the web server to the project directory so you have the option to point your browser to localhost/project/source as well as localhost/project/deploy
