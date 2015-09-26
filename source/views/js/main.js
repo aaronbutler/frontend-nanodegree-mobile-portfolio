@@ -408,17 +408,17 @@ var pizzaElementGenerator = function(i) {
 	pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
 	pizzaImageContainer.classList.add("col-xs-6");
 
-	pizzaImage.src = "images/pizza_med.png";
+	pizzaImage.src = "images/pizza.png";
 	pizzaImage.classList.add("img-responsive");
 	pizzaImage.classList.add("pizza-pic");
-	pizzaImage.classList.add("medium-pizza");
+	pizzaImage.classList.add("large-pizza");
 
 	/*The screen that shows the most pizzas has 24, so those 24 pizza images get will-change layers
 	The rest do not. There may be a way to better handle off-screen components,
 	although I do not need it in order to reach 60fps.
 	*/
 	if(i<24) {
-		pizzaImage.classList.add("pizza-pic-willchange");
+		pizzaImage.classList.add("pizza-pic-defer");
 	}
 	else {
 		pizzaImage.classList.add("pizza-pic-defer");
@@ -442,15 +442,34 @@ var pizzaElementGenerator = function(i) {
 	return pizzaContainer;
 };
 
+window.performance.mark("mark_start_generating"); // collect timing data
 for (var i = 2; i < 100; i++) {
 	var pizzasDiv = document.getElementById("randomPizzas");
 	pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
+// User Timing API again. These measurements tell you how long it took to generate the initial pizzas
+window.performance.mark("mark_end_generating");
+window.performance.measure("measure_pizza_generation", "mark_start_generating", "mark_end_generating");
+var timeToGenerate = window.performance.getEntriesByName("measure_pizza_generation");
+console.log("Time to generate pizzas on load: " + timeToGenerate[0].duration + "ms");
 
 var pizzaSizeResize = 0;
+var pizzaSizeOld = 0;
+var pizzaSizeArray = [0,25,33.3,50];
+
 function reLabelSize() {
+	window.performance.mark("mark_start_resize");   // User Timing API function
 	changeSliderLabel(pizzaSizeResize);
-	changeContentPizza(pizzaSizeResize);
+	//changeContentPizza(pizzaSizeResize);
+	changePizzaSizes2(pizzaSizeResize);
+	// User Timing API is awesome
+  window.performance.mark("mark_end_resize");
+  window.performance.measure("measure_pizza_resize", "mark_start_resize", "mark_end_resize");
+  var timeToResize = window.performance.getEntriesByName("measure_pizza_resize");
+  
+  //At least on my machines, the timeToResize entries got added to the end, not the beginning.
+  //So the log always gave the value for the first resize, rather than the most recent.
+  console.log("Time to resize pizzas: " + timeToResize[timeToResize.length-1].duration + "ms");
 }
 
 // Changes the value for the size of the pizza above the slider
@@ -470,11 +489,22 @@ function changeSliderLabel(size) {
 			return;
 	}
 }
+
+function changePizzaSizes2(size) {
+	//console.log('In changePizzaSizes2');
+	var zas = document.getElementsByClassName('randomPizzaContainer');
+	//console.log('zas.length:'+zas.length);
+	var newwidth = pizzaSizeArray[size];
+	//console.log('newwidth:'+newwidth);
+    for (var i = 0,l=zas.length; i < l; i++) {
+      zas[i].style.width = newwidth+'%';
+    }
+  }
   
 function changeContentPizza(size) {
 	//console.log("Pizza size:" +size);
 	//var con = document.getElementById("randomPizzas");
-	var zas = document.querySelectorAll('.pizza-pic');
+	var zas = document.getElementsByClassName('pizza-pic');
 	for(var i=0,l=zas.length;i<l;i++) {
 		var con=zas[i];
 
@@ -507,12 +537,14 @@ function changeContentPizza(size) {
 
 var resizePizzas = function(size) { 
 	//window.performance.mark("mark_start_resize");   // User Timing API function
+	pizzaSizeOld = pizzaSizeResize;
 	pizzaSizeResize = size;
 	//requestAnimationFrame(reLabelSize);
 	reLabelSize();
 };
 
 var items = [];
+//var transparentOverlay = document.getElementById('transparent-overlay');
 
 /*Stole Pauls code almost verbatim for efficient scroll handling
 http://www.html5rocks.com/en/tutorials/speed/animations/
@@ -521,20 +553,38 @@ var latestKnownScrollY = 0,
 	ticking = false;
 
 function onScroll() {
-	latestKnownScrollY = document.body.scrollTop;
+	//latestKnownScrollY = document.body.scrollTop;
 	requestTick();
 }
 
 function requestTick() {
 	if(!ticking) {
+		latestKnownScrollY = document.body.scrollTop;
 		requestAnimationFrame(updatePositions);
+		ticking = true;
 	}
-	ticking = true;
 }
 
 window.addEventListener('scroll', onScroll);
 
+
+// Iterator for number of times the pizzas in the background have scrolled.
+// Used by updatePositions() to decide when to log the average time per frame
+var frame = 0;
+
+// Logs the average amount of time per 10 frames needed to move the sliding background pizzas on scroll.
+function logAverageFrame(times) {   // times is the array of User Timing measurements from updatePositions()
+  var numberOfEntries = times.length;
+  var sum = 0;
+  for (var i = numberOfEntries - 1; i > numberOfEntries - 11; i--) {
+    sum = sum + times[i].duration;
+  }
+  console.log("Average time to generate last 10 frames: " + sum / 10 + "ms");
+}
+
 function updatePositions() {
+	frame++;
+  window.performance.mark("mark_start_frame");
 	var cachedScrollTop = latestKnownScrollY;
 	var phases = [100*Math.sin(cachedScrollTop/1250),
 		100*Math.sin(cachedScrollTop/1250 + 1),
@@ -542,10 +592,19 @@ function updatePositions() {
 		100*Math.sin(cachedScrollTop/1250 + 3),
 		100*Math.sin(cachedScrollTop/1250 + 4)];
 
-	for (var i = 0; i < items.length; i++) {
-		items[i].style["-webkit-transform"] = 'translateX('+phases[i%5]+'px)';
-		items[i].style.transform = 'translateX('+phases[i%5]+'px)';
+	for (var i = 0,l=items.length; i < l; i++) {
+		items[i].style['-webkit-transform'] = 'translateX('+phases[i%5]+'px)';
+		items[i].style['transform'] = 'translateX('+phases[i%5]+'px)';
 	}
+	
+	// User Timing API to the rescue again. Seriously, it's worth learning.
+  // Super easy to create custom metrics.
+  window.performance.mark("mark_end_frame");
+  window.performance.measure("measure_frame_duration", "mark_start_frame", "mark_end_frame");
+  if (frame % 10 === 0) {
+    var timesToUpdatePosition = window.performance.getEntriesByName("measure_frame_duration");
+    logAverageFrame(timesToUpdatePosition);
+  }
 	ticking = false;
 }
 
@@ -568,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		newRow.setAttribute('id','moverRow'+(r+2));
 		movingContainer.appendChild(newRow);
 	}
-	items = document.querySelectorAll('.mover');
+	items = document.getElementsByClassName('mover');
 	updatePositions();
 });
 

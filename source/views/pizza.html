@@ -1,9 +1,18 @@
 <!DOCTYPE HTML>
 <html>
-<head>  
+<head>
+	<link rel="stylesheet" href="css/bootstrap-grid.css">
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
 	<style>
+		* {
+			-webkit-box-sizing: border-box;
+			-moz-box-sizing: border-box;
+			-box-sizing: border-box;
+		}
+
 		body {
 			font-family: "Trebuchet MS", Helvetica, sans-serif;
+			margin: 0px;
 		}
 
 		input {
@@ -37,38 +46,9 @@
 			clear:both;
 		}
 
-		/*for pizzas which may be visible when the user clicks to change the size
-		They get their own layer*/
-		.pizza-pic-willchange {
-			will-change: transform;
-		}
-
-		.pizza-pic.small-pizza {
-			-ms-transform: scale(0.6,0.6); /* IE 9 */
-			-webkit-transform: scale(0.6,0.6); /* Safari */
-			transform: scale(0.6,0.6);
-		}
-
-		.pizza-pic.medium-pizza {
-			/*width: 33.33%;*/
-			-ms-transform: scale(0.8,0.8); /* IE 9 */
-			-webkit-transform: scale(0.8,0.8); /* Safari */
-			transform: scale(0.8,0.8);
-		}
-
-		/*The 'baseline' pizza - all scales are to make this smaller*/
-		.pizza-pic.large-pizza {
-			-ms-transform: scale(1,1); /* IE 9 */
-			-webkit-transform: scale(1,1); /* Safari */
-			transform: scale(1,1);
-		}
-
 		/*where all the words and non-animated pictures live*/
 		#mainContent {
 			z-index: 0;
-			-webkit-box-sizing: border-box;
-			-moz-box-sizing: border-box;
-			-box-sizing: border-box;
 			width: 90%;
 			/*font-weight: bold;*/
 			color: black;
@@ -81,6 +61,9 @@
 			height:100%;
 			width: 100%;
 			position:fixed;
+			/*border: 0px;
+			margin: 0px;
+			padding: 0px;*/
 		}
 
 		/*http://stackoverflow.com/questions/3157372/css-horizontal-centering-of-a-fixed-div*/
@@ -92,34 +75,39 @@
 			background: rgba(240,60,60,0.8);
 			width: 90%;
 			left: 50%;
-			margin: 1% 0 0 -45%;
+			margin: 0 0 0 -45%;
+			/*border: 0px;
+			padding: 0px;*/
 		}
 
 		.moverRow {
 			height: 256px;
 		}
+		
+		.mover {
+			will-change: transform;
+		}
 	</style>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 <body>
 	<div id="movingPizzas">
 		<div id="moverRow1" class="moverRow row">
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
-			<div class="col-xs-2 moverBox">
+			<div class="col-xs-2 moverBox pizza-pic-willchange">
 				<img src="images/pizza_small.png" class="mover"></img>
 			</div>
 		</div>
@@ -127,12 +115,12 @@
 	<div id="transparent-overlay"></div>
 	<div id="mainContent" class="container">
 		<div id="header" class="row">
-			<div class="col-xs-6">
+			<div class="col-md-6">
 				<div class="row">
-					<div class="col-xs-12">
+					<div class="col-md-12">
 						<h1>Cam's Pizzeria</h1>
 						<div class="row">
-							<div id="menu" class="col-xs-12">
+							<div id="menu" class="col-md-12">
 								<form action="#randomPizzas">
 									<input class="user-input" type="submit" value="Menu">
 								</form>
@@ -153,7 +141,7 @@
 		</div>
 		<div id="callToAction" class="row">
 			<div class="col-xs-4">
-				<img src="images/pizzeria_pretty.jpg" class="img-responsive"> 
+				<img src="images/pizzeria_pretty.jpg" class="img-responsive"><!-- Image credit to: http://commons.wikimedia.org/wiki/File:HK_TST_night_%E5%98%89%E8%98%AD%E9%81%93_Granville_Road_restaurant_Paisano's_Pizzeria_pizza_Dec-2013.JPG -->
 			</div>
 			<div class="col-xs-8">
 				<div class="row">
@@ -223,7 +211,7 @@
 				<div id="randomPizzas" class="row">
 					<div id="pizza0" class="col-xs-4 randomPizzaContainer">
 						<div class="col-xs-6">
-							<img src="images/pizza_med.png" class="medium-pizza pizza-pic pizza-pic-willchange img-responsive">
+							<img src="images/pizza.png" class="large-pizza pizza-pic pizza-pic-willchange img-responsive">
 						</div>
 						<div class="col-xs-6">
 							<h4>The Udacity Special</h4>
@@ -240,7 +228,7 @@
 					</div>
 					<div id="pizza1" class="col-xs-4 randomPizzaContainer">
 						<div class="col-xs-6">
-							<img src="images/pizza_med.png" class="medium-pizza pizza-pic pizza-pic-willchange img-responsive">
+							<img src="images/pizza.png" class="large-pizza pizza-pic pizza-pic-willchange img-responsive">
 						</div>
 						<div class="col-xs-6">
 							<h4>The Cameron Special</h4>
@@ -254,7 +242,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="footer" class="col-md-12">Thanks for visiting! &copy; 2014 Udacity</div>
+		<div id="footer" class="col-xs-12">Thanks for visiting! &copy; 2014 Udacity</div>
 	</div>
 	<script type="text/javascript" src="js/main.js"></script>
 </body>

@@ -1,3 +1,7 @@
+Take 2 after embarrassing submission:
+60 fps moving pizzas:
+-I noticed that composited layer borders were moving every time a pizza moved off screen, triggering a full layer repaint. So I put the will-change:transform attribute on those pizzas, and the paints only happen along the trajectory of the moving pizzas.
+-------------------------------
 2015-09-10: Baseline metrics:
 Pagespeed Insights for index.html - 27 on mobile, 29 on desktop
 
