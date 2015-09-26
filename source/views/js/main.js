@@ -16,16 +16,6 @@ Cameron Pittman, Udacity Course Developer
 cameron *at* udacity *dot* com
 */
 
-/*
-*
-*
-*bootstrap col-xs-2
-<div class="col- xs-2 col-lg-1"></div>
-honestly it was only maybe 2 months ago that I learned that. I used to do <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"></div> when i could just do <div class="col-xs-12 col-md-4"></div> and get the same result
-*
-*
-*/
-
 
 
 // As you may have realized, this website randomly generates pizzas.
@@ -403,26 +393,14 @@ var pizzaElementGenerator = function(i) {
 	pizzaDescriptionContainer = document.createElement("div");
 
 	pizzaContainer.classList.add("randomPizzaContainer");
-	pizzaContainer.classList.add("col-xs-4");
+	pizzaContainer.style.width = "33.33%";
 
 	pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
 	pizzaImageContainer.classList.add("col-xs-6");
 
 	pizzaImage.src = "images/pizza.png";
 	pizzaImage.classList.add("img-responsive");
-	pizzaImage.classList.add("pizza-pic");
-	pizzaImage.classList.add("large-pizza");
 
-	/*The screen that shows the most pizzas has 24, so those 24 pizza images get will-change layers
-	The rest do not. There may be a way to better handle off-screen components,
-	although I do not need it in order to reach 60fps.
-	*/
-	if(i<24) {
-		pizzaImage.classList.add("pizza-pic-defer");
-	}
-	else {
-		pizzaImage.classList.add("pizza-pic-defer");
-	}
 
 	pizzaImageContainer.appendChild(pizzaImage);
 	pizzaContainer.appendChild(pizzaImageContainer);
@@ -443,8 +421,8 @@ var pizzaElementGenerator = function(i) {
 };
 
 window.performance.mark("mark_start_generating"); // collect timing data
+var pizzasDiv = document.getElementById("randomPizzas");// pulled this out of the for loop
 for (var i = 2; i < 100; i++) {
-	var pizzasDiv = document.getElementById("randomPizzas");
 	pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 // User Timing API again. These measurements tell you how long it took to generate the initial pizzas
@@ -453,23 +431,17 @@ window.performance.measure("measure_pizza_generation", "mark_start_generating", 
 var timeToGenerate = window.performance.getEntriesByName("measure_pizza_generation");
 console.log("Time to generate pizzas on load: " + timeToGenerate[0].duration + "ms");
 
+//These variables exist to handle the pizza size states
+//pizzaSizeResize will be the new size
 var pizzaSizeResize = 0;
-var pizzaSizeOld = 0;
-var pizzaSizeArray = [0,25,33.3,50];
+var pizzaSizeArray = [0,25,33.33,50];
 
-function reLabelSize() {
-	window.performance.mark("mark_start_resize");   // User Timing API function
+//Handles the relabeling of the range slider and the resizing of the pizzas
+function reLabelAndReSize() {
+	
 	changeSliderLabel(pizzaSizeResize);
 	//changeContentPizza(pizzaSizeResize);
-	changePizzaSizes2(pizzaSizeResize);
-	// User Timing API is awesome
-  window.performance.mark("mark_end_resize");
-  window.performance.measure("measure_pizza_resize", "mark_start_resize", "mark_end_resize");
-  var timeToResize = window.performance.getEntriesByName("measure_pizza_resize");
-  
-  //At least on my machines, the timeToResize entries got added to the end, not the beginning.
-  //So the log always gave the value for the first resize, rather than the most recent.
-  console.log("Time to resize pizzas: " + timeToResize[timeToResize.length-1].duration + "ms");
+	changePizzaSizes(pizzaSizeResize);
 }
 
 // Changes the value for the size of the pizza above the slider
@@ -490,63 +462,35 @@ function changeSliderLabel(size) {
 	}
 }
 
-function changePizzaSizes2(size) {
-	//console.log('In changePizzaSizes2');
+//iterates over the pizzacontainers and changes their width according to the slider
+function changePizzaSizes(size) {
 	var zas = document.getElementsByClassName('randomPizzaContainer');
-	//console.log('zas.length:'+zas.length);
 	var newwidth = pizzaSizeArray[size];
-	//console.log('newwidth:'+newwidth);
     for (var i = 0,l=zas.length; i < l; i++) {
       zas[i].style.width = newwidth+'%';
     }
-  }
-  
-function changeContentPizza(size) {
-	//console.log("Pizza size:" +size);
-	//var con = document.getElementById("randomPizzas");
-	var zas = document.getElementsByClassName('pizza-pic');
-	for(var i=0,l=zas.length;i<l;i++) {
-		var con=zas[i];
-
-		switch(size) {
-			case "1":
-
-				con.classList.remove('medium-pizza');
-				con.classList.remove('large-pizza');
-				con.classList.add('small-pizza');
-				break;
-			case "2":
-
-				con.classList.remove('large-pizza');
-				con.classList.remove('small-pizza');
-				con.classList.add('medium-pizza');
-				break;
-			case "3":
-
-				con.classList.remove('medium-pizza');
-				con.classList.remove('small-pizza');
-				con.classList.add('large-pizza');
-				break;
-			default:
-				console.log("bug in changeContentPizza: "+size+"--"+con);
-		}
-
-	}
-
 }
 
-var resizePizzas = function(size) { 
-	//window.performance.mark("mark_start_resize");   // User Timing API function
-	pizzaSizeOld = pizzaSizeResize;
+//gets called by the slider, ultimately changes the label and the size of the pizzacontainer
+var resizePizzas = function(size) {
+	window.performance.mark("mark_start_resize");   // User Timing API function
 	pizzaSizeResize = size;
-	//requestAnimationFrame(reLabelSize);
-	reLabelSize();
+	reLabelAndReSize();
+	// User Timing API is awesome
+	window.performance.mark("mark_end_resize");
+	window.performance.measure("measure_pizza_resize", "mark_start_resize", "mark_end_resize");
+	var timeToResize = window.performance.getEntriesByName("measure_pizza_resize");
+
+	//At least on my machines, the timeToResize entries got added to the end, not the beginning.
+	//So the log that used timeToResize[0] always gave the value for the first resize, rather than the most recent.
+	console.log("Time to resize pizzas: " + timeToResize[timeToResize.length-1].duration + "ms");
 };
 
+//holds the moving pizzas elements array
 var items = [];
-//var transparentOverlay = document.getElementById('transparent-overlay');
 
-/*Stole Pauls code almost verbatim for efficient scroll handling
+
+/*Stole Paul's code almost verbatim for efficient scroll handling/debouncing
 http://www.html5rocks.com/en/tutorials/speed/animations/
 */
 var latestKnownScrollY = 0,
@@ -566,7 +510,7 @@ function requestTick() {
 }
 
 window.addEventListener('scroll', onScroll);
-
+//end debounce code
 
 // Iterator for number of times the pizzas in the background have scrolled.
 // Used by updatePositions() to decide when to log the average time per frame
@@ -574,40 +518,46 @@ var frame = 0;
 
 // Logs the average amount of time per 10 frames needed to move the sliding background pizzas on scroll.
 function logAverageFrame(times) {   // times is the array of User Timing measurements from updatePositions()
-  var numberOfEntries = times.length;
-  var sum = 0;
-  for (var i = numberOfEntries - 1; i > numberOfEntries - 11; i--) {
-    sum = sum + times[i].duration;
-  }
-  console.log("Average time to generate last 10 frames: " + sum / 10 + "ms");
+	var numberOfEntries = times.length;
+	var sum = 0;
+	for (var i = numberOfEntries - 1; i > numberOfEntries - 11; i--) {
+		sum = sum + times[i].duration;
+	}
+	console.log("Average time to generate last 10 frames: " + sum / 10 + "ms");
 }
 
+//updates the location of the animated moving pizzas in the background
 function updatePositions() {
 	frame++;
-  window.performance.mark("mark_start_frame");
-	var cachedScrollTop = latestKnownScrollY;
+	window.performance.mark("mark_start_frame");
+	var cachedScrollTop = latestKnownScrollY;//pulled this out to prevent thrashing
+
+	//doesn't need to be done inside the for loop as there are only 5 possible values
 	var phases = [100*Math.sin(cachedScrollTop/1250),
 		100*Math.sin(cachedScrollTop/1250 + 1),
 		100*Math.sin(cachedScrollTop/1250 + 2),
 		100*Math.sin(cachedScrollTop/1250 + 3),
 		100*Math.sin(cachedScrollTop/1250 + 4)];
 
+	//used translateX instead of left, lets me use will-change transform
 	for (var i = 0,l=items.length; i < l; i++) {
 		items[i].style['-webkit-transform'] = 'translateX('+phases[i%5]+'px)';
 		items[i].style['transform'] = 'translateX('+phases[i%5]+'px)';
 	}
 	
 	// User Timing API to the rescue again. Seriously, it's worth learning.
-  // Super easy to create custom metrics.
-  window.performance.mark("mark_end_frame");
-  window.performance.measure("measure_frame_duration", "mark_start_frame", "mark_end_frame");
-  if (frame % 10 === 0) {
-    var timesToUpdatePosition = window.performance.getEntriesByName("measure_frame_duration");
-    logAverageFrame(timesToUpdatePosition);
-  }
+	// Super easy to create custom metrics.
+	window.performance.mark("mark_end_frame");
+	window.performance.measure("measure_frame_duration", "mark_start_frame", "mark_end_frame");
+	if (frame % 10 === 0) {
+		var timesToUpdatePosition = window.performance.getEntriesByName("measure_frame_duration");
+		logAverageFrame(timesToUpdatePosition);
+	}
 	ticking = false;
 }
 
+//stole this from somebody on stackoverflow and didn't keep track of whom, sorry
+//generic way to calculate the height of the viewport
 function height(){
 	return window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
 }
@@ -615,11 +565,12 @@ function height(){
 document.addEventListener('DOMContentLoaded', function() {
 
 	var movingContainer = document.getElementById('movingPizzas');
+
+	//used a bootstrap row with 6 col-xs-2 cells as the baseline for the moving pizzas
 	var rowBase = document.getElementById('moverRow1');
 	var rowClone = rowBase.cloneNode(true);
 	rowClone.removeAttribute('id');
 
-	var cols = 6;
 	var s = 256;
 	var rows = Math.ceil(height()/s);
 	for (var r = 0;r<rows-1;r++) {
