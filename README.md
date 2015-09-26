@@ -58,9 +58,10 @@ on each layer.
 
 * It was clearly unnecessary to have 200 pizzas. I first created a fixed position div with a black background. Then I created a single row of 6 pizzas in col-xs-2 cells directly in the html. I then cloned that row based on the size of the viewport, where each row takes up 256px of vertical space. I tested screens with 3 rows and with 6 rows. This immediately improved the initial page load time (not needed for the project, but what the heck). I also made a small version of the pizza image rather than retrieve a large image then scale it down. Putting the pizza images in bootstrap cells certainly made for more attractive code and it helped me better understand bootstrap (Daniel, our nanodegree guide, also helped a lot with this), but it is not clear that it helped with performance. However, it apparently didn't cause too much harm either. 
 * It was unnecessary to calculate the possible phase shifts for each moving pizza, as there were only 5 possible values. So I moved that out of the for loop in updatePosition.
-* I used transform=translateX to move the pizzas from their initial position in their cells, as that is more efficient than left. I used the Pauls article from above, and also used Paul Lewis' code almost verbatim from
+* I used transform=translateX to move the pizzas from their initial position in their cells, as that is more efficient than left. I used the Pauls article from above.
+* I used Paul Lewis' code almost verbatim from
 [Animations - Debouncing Scrolls](http://www.html5rocks.com/en/tutorials/speed/animations/)
-to debounce the scroll events.
+to debounce the scroll events with efficient use of requestAnimationFrame.
 * I noticed that composited layer borders were moving every time a pizza moved off screen, triggering a full layer repaint. So I put the will-change:transform attribute on those pizzas, and the paints only happen along the trajectory of the moving pizzas. I did not add and remove will-change with javascript despite the recommendations to do so in the class and on
 [CSS will-change](https://dev.opera.com/articles/css-will-change-property/)
 because that didn't seem necessary from my testing and it did seem hackish and in violation of separation of code between display and functionality.
@@ -68,14 +69,15 @@ because that didn't seem necessary from my testing and it did seem hackish and i
 
 This got me well over (under? the good side...) of 60fps on the movingPizzas layer. The actual javascript code is fast (per timing API calls), actually in practice it is probably faster because of the requestAnimationFrame calls. I am a little confused by the jank warnings on Chrome Dev Tools/Timeline under flame view, but all of my actual frames come in much better than 60. I think that means I am appropriately using hardware resources when they are available.
 
-1. transparent-overlay layer:
+2. transparent-overlay layer:
 
 * It took me a while for the "only element on its layer" rule to sink in before I pulled this layer out. Then the opacity stopped causing slowdown. I used the idea from
 [Centering Fixed div](http://stackoverflow.com/questions/3157372/css-horizontal-centering-of-a-fixed-div)
 to make it look reasonable.
 The scrolling was still on the good side of 60fps after doing this.
 
-1. mainContent layer:
+3. mainContent layer:
+
 * First I put in the static content and made sure it didn't interfere with the speed of the background animation. A-OK.
 * I created all of the random pizzas, and made sure they looked reasonable on the page with all large images. 
 * I got rid of most of the superfluous code relating to resizing the pizzas, and made it a simple function with no layout thrashing.
@@ -84,7 +86,8 @@ The scrolling was still on the good side of 60fps after doing this.
 * I look forward to learning about single page/AJAX sites, which may allow for limiting the scope of some of the layout calls on resize.
 
 And pizza generation javascript code is fast (per timing API), pizza resizing javascript code is fast, and the animation of the resizing is typically in the 30fps range.
------------------------
+
+## Instructions from Udacity
 Your challenge, if you wish to accept it (and we sure hope you will), is to optimize this online portfolio for speed! In particular, optimize the critical rendering path and make this page render as quickly as possible by applying the techniques you've picked up in the [Critical Rendering Path course](https://www.udacity.com/course/ud884).
 
 To get started, check out the repository, inspect the code,
